@@ -1,0 +1,26 @@
+redisCluster:
+  clusterSize: 3
+  clusterVersion: v7
+  persistenceEnabled: true
+  image: quay.io/opstree/redis
+  tag: v7.0.15
+  imagePullPolicy: IfNotPresent
+  redisSecret:
+    secretName: "redis-cluster-d7y" 
+    secretKey: "password"
+  minReadySeconds: 0
+storageSpec:
+  volumeClaimTemplate:
+    spec:
+      storageClassName: "" 
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+  nodeConfVolume: true
+  nodeConfVolumeClaimTemplate:
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi

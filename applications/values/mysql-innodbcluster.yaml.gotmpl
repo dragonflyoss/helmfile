@@ -1,0 +1,27 @@
+credentials:
+  root:
+    user: {{ .Values.mysql.username }}
+    password: {{ .Values.mysql.password }}
+    host: "%"
+serverInstances: 3
+routerInstances: 2
+tls:
+  useSelfSigned: true
+podSpec:
+  containers:
+  - name: sidecar
+    image: globalimages/mysql-operator:8.3.0-2.1.2
+  - name: mysql
+    image: globalimages/mysql:8.3.0
+  initContainers:
+  - name: fixdatadir
+    image: globalimages/mysql-operator:8.3.0-2.1.2
+  - name: initconf
+    image: globalimages/mysql-operator:8.3.0-2.1.2
+  - name: initmysql
+    image: globalimages/mysql:8.3.0
+router:
+  podSpec:
+    containers:
+    - name: router
+      image: globalimages/mysql-router:8.3.0

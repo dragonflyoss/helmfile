@@ -1,0 +1,14 @@
+redisStandalone:
+  image: quay.io/opstree/redis
+  tag: v7.0.12
+  imagePullPolicy: IfNotPresent
+  redisSecret:
+    secretName: "redis-d7y" 
+    secretKey: "password"
+storageSpec:
+  volumeClaimTemplate:
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 3Gi
