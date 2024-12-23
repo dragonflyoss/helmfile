@@ -1,0 +1,40 @@
+containerRuntime:
+  initContainerImage: {{ .Values | get "containerRuntime.initContainerImage" "dragonflyoss/openssl:2022-05-25" }} 
+  containerd:
+    enable: true
+    injectConfigPath: {{ .Values | get "containerRuntime.containerd.injectConfigPath" false }}
+    registries:
+{{ .Values.containerRuntime.registries | toYaml | indent 6 }}
+
+# disable internal mysql
+mysql:
+  enable: false
+
+# disable internal redis
+redis:
+  enable: false
+
+externalMysql:
+  migrate: true
+  host: {{ .Values.mysql.host }}
+  username: {{ .Values.mysql.username }}
+  password: {{ .Values.mysql.password }}
+  database: {{ .Values.mysql.database }}
+  port: {{ .Values.mysql.port | default 3306 }}
+
+externalRedis:
+  addrs:
+    - {{ .Values.redis.host }}:{{ .Values.redis.port }}
+  password: {{ .Values.redis.password }}
+
+jaeger: 
+  enable: {{ .Values | get "jaeger.enable" false }}
+
+seedPeer:
+{{ toYaml .Values.seedPeer | indent 2 }}
+manager:
+{{ toYaml .Values.manager | indent 2 }}
+scheduler:
+{{ toYaml .Values.scheduler | indent 2 }}
+dfdaemon:
+{{ toYaml .Values.dfdaemon | indent 2 }}

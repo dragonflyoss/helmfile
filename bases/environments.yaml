@@ -1,0 +1,4 @@
+environments:
+  dev:
+    values:
+      - ../environments/dev/*.yaml.gotmpl

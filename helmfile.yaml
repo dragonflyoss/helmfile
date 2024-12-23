@@ -1,0 +1,13 @@
+# A workaround for https://github.com/roboll/helmfile/issues/1045
+environments:
+{{ $environments := (readFile "bases/environments.yaml" | fromYaml) }}
+{{ range $key, $env := (index $environments "environments") }}
+  {{ $key }}:
+    values:
+      - "environments/{{ $key }}/*.yaml.gotmpl"
+{{- end }}
+
+helmfiles:
+  - path: applications/dragonfly.yaml
+
+missingFileHandler: Error
