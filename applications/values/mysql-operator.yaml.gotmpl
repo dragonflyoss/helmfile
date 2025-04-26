@@ -1,6 +1,11 @@
 image:
-  registry: "docker.m.daocloud.io"
+  registry: "docker.io"
   repository: globalimages
   name: mysql-operator
   pullPolicy: IfNotPresent
   tag: "8.3.0-2.1.2"
+
+{{- if .Values | get "mysql_operator.envs" dict }}
+envs:
+{{ .Values.mysql_operator.envs | toYaml | indent 2 }}
+{{- end }}

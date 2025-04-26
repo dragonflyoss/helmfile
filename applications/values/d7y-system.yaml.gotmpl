@@ -1,0 +1,159 @@
+manager:
+  enable: true
+  name: manager
+  image:
+    registry: docker.io
+    repository: dragonflyoss/manager
+    tag: v2.2.1
+  hostNetwork: false
+  initContainer:
+    image:
+      registry: docker.io
+      repository: busybox
+      tag: 1.37.0   
+  config:
+    console: true
+    verbose: true 
+  metrics:
+    enable: true
+scheduler:
+  enable: true
+  replicas: 3
+  image:
+    registry: docker.io
+    repository: dragonflyoss/scheduler
+    tag: v2.2.1
+    pullPolicy: IfNotPresent
+  hostNetwork: false
+  initContainer:
+    image:
+      registry: docker.io
+      repository: busybox
+      tag: 1.37.0 
+  config:
+    console: true
+    verbose: true 
+  metrics:
+    enable: true
+seedClient:
+  enable: true
+  replicas: 3
+  extraVolumes:
+    - name: logs
+      hostPath:
+        path: /var/log/dragonfly/seedClient/
+        type: DirectoryOrCreate
+  extraVolumeMounts:
+    - name: logs
+      mountPath: /var/log/dragonfly/dfdaemon/
+  image:
+    registry: docker.io
+    repository: dragonflyoss/client
+    tag: v0.2.22
+  hostNetwork: false
+  initContainer:
+    image:
+      registry: docker.io
+      repository: busybox
+      tag: 1.37.0 
+  persistence:
+    enable: true
+    size: {{ .Values | get "d7ySystem.seedClient.persistence.size" "100Gi" }}
+    storageClass: {{ .Values | get "d7ySystem.storageClass" "" }} 
+  config:
+    verbose: true
+    log:
+      level: debug 
+  metrics:
+    enable: true
+client:
+  enable: true 
+  extraVolumes:
+    - name: storage
+      hostPath:
+        path: {{ .Values | get "d7ySystem.client.storageHostPath" "/var/lib/d7y" }}
+        type: DirectoryOrCreate
+    - name: logs
+      hostPath:
+        path: /var/log/dragonfly/dfdaemon/
+        type: DirectoryOrCreate
+  extraVolumeMounts:
+    - name: storage
+      mountPath: /var/lib/dragonfly/
+    - name: logs
+      mountPath: /var/log/dragonfly/dfdaemon/
+  image:
+    registry: docker.io
+    repository: dragonflyoss/client
+    tag: v0.2.22
+  hostNetwork: true
+  initContainer:
+    image:
+      registry: docker.io
+      repository: busybox
+      tag: 1.37.0 
+  dfinit:
+    enable: true 
+    restartContainerRuntime: false
+    image:
+      registry: docker.io
+      repository: dragonflyoss/dfinit
+      tag: v0.2.22
+    config:
+      verbose: true
+      log:
+        level: info
+      proxy:
+        addr: http://127.0.0.1:4001
+      containerRuntime:
+        containerd:
+          configPath: /etc/containerd/config.toml
+          registries:
+            - hostNamespace: glcr.nju.edu.cn 
+              serverAddr: https://glcr.nju.edu.cn
+              capabilities: ["pull", "resolve"]
+            - hostNamespace: docker.io 
+              serverAddr: https://index.docker.io
+              capabilities: ["pull", "resolve"]
+  config:
+    verbose: true
+    log:
+      level: info
+    storage:
+      dir: /var/lib/dragonfly
+      keep: true
+      writeBufferSize: 4194304
+      readBufferSize: 4194304
+    gc:
+      interval: 900s
+      policy:
+        taskTTL: 168h
+        distHighThresholdPercent: 70
+        distLowThresholdPercent: 50
+  metrics:
+    enable: true
+
+mysql:
+  enable: false 
+externalMysql:
+  migrate: true
+  host: {{ .Values | get "d7ySystem.mysql.host" "" }}
+  username: {{ .Values | get "d7ySystem.mysql.username" "dragonfly" }}
+  password: {{ .Values | get "d7ySystem.mysql.password" "dragonfly" }} 
+  database: {{ .Values | get "d7ySystem.mysql.database" "manager" }} 
+  port: {{ .Values | get "d7ySystem.mysql.port" "3306" }} 
+
+redis:
+  enable: false 
+externalRedis:
+  addrs:
+{{ range $i, $addr := .Values | get "d7ySystem.redis.addrs" }}
+    - {{ $addr | quote }}
+{{ end }}
+  username: ""
+  password: {{ .Values | get "d7ySystem.redis.password" "" }}
+  sentinelPassword: {{ .Values | get "d7ySystem.redis.sentinelPassword" "" }}
+  masterName: {{ .Values | get "d7ySystem.redis.masterName" "" }}
+  db: 0
+  brokerDB: 1
+  backendDB: 2

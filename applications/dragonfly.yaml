@@ -5,63 +5,42 @@ bases:
 
 ---
 
-# repositories:
+repositories:
+- name: dragonfly
+  url: https://dragonflyoss.github.io/helm-charts/
+
 # - name: mysql-operator 
 #   url: https://mysql.github.io/mysql-operator/
-# 
-# - name: dragonfly
-#   url: https://dragonflyoss.github.io/helm-charts/
-# 
-# - name: redis-operator 
-#   url: https://ot-container-kit.github.io/helm-charts/
 
-- name: redis-operator 
-  namespace: redis-operator 
-  chart: ./chart/redis-operator
-  values:
-    - values/redis-operator.yaml.gotmpl
-
+{{- if .Values | get "install.mysql_operator" false }}
 - name: mysql-operator 
-  namespace: mysql-operator
+  namespace: {{ .Values.namespace.mysql_operator }}
   chart: ./chart/mysql-operator 
   values:
     - values/mysql-operator.yaml.gotmpl
+{{- end }}
 
-releases:
-- name: raw
-  namespace: redis-d7y
-  chart: ./chart/raw
-  values:
-    - values/redis-secrets.yaml.gotmpl
-
-- name: redis-d7y 
-  namespace: redis-d7y
-  chart: ./chart/redis
-  values:
-    - values/redis.yaml.gotmpl
-
-releases:
-- name: raw
-  namespace: redis-cluster-d7y
-  chart: ./chart/raw
-  values:
-    - values/redis-cluster-secrets.yaml.gotmpl
-
-- name: redis-cluster-d7y 
-  namespace: redis-cluster-d7y
-  chart: ./chart/redis-cluster
-  values:
-    - values/redis-cluster.yaml.gotmpl
-
-
+{{- if .Values | get "install.mysql_innodbcluster_d7y" false }}
 - name: mysql-innodbcluster-d7y
   namespace: mysql-innodbcluster-d7y
   chart: ./chart/mysql-innodbcluster 
   values:
     - values/mysql-innodbcluster.yaml.gotmpl
+{{- end }}
 
-- name: dragonfly
-  namespace: dragonfly-system
-  chart: ./chart/dragonfly
+{{- if (.Values | get "install.d7y_redis_sentinel" false) }}
+- name: "d7y-redis-sentinel"
+  namespace: {{ .Values | get "namespace.d7y_redis_sentinel" "d7y-redis-sentinel" }}
+  chart: ./chart/redis
   values:
-    - values/dragonfly.yaml.gotmpl
+    - values/d7y-redis-sentinel.yaml.gotmpl
+{{- end }}
+
+{{- if .Values | get "install.d7y_system" false }}
+- name: d7y-system
+  namespace: d7y-system
+  chart: dragonfly/dragonfly
+  version: "1.3.25"
+  values:
+    - values/d7y-system.yaml.gotmpl
+{{- end }}

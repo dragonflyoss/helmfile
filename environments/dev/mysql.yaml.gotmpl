@@ -1,6 +1,13 @@
 mysql:
   host: mysql-innodbcluster-d7y.mysql-innodbcluster-d7y 
   port: 3306
-  username: dragonfly
-  password: dragonfly
-  database: dragonfly
+  username: dragonfly 
+  password: password 
+  database: manager 
+  datadirVolumeClaimTemplate:
+    # please set the storageClass of mysql
+    storageClassName: ""
+    accessModes: "ReadWriteOnce"
+    resources:
+      requests:
+        storage: 10Gi

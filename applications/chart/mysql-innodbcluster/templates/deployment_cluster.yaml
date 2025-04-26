@@ -34,6 +34,10 @@ metadata:
   name: {{ $cluster_name }}
   namespace: {{ .Release.Namespace }}
 spec:
+{{- if .Values.service }}
+  service:
+{{ .Values.service | toYaml | indent 4 }}
+{{- end }}
   instances: {{ required "serverInstances is required" .Values.serverInstances }}
   tlsUseSelfSigned: {{ $use_self_signed }}
   router:
