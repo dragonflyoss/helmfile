@@ -1,48 +1,43 @@
-[TOC]
+# Dragonfly DevOps
 
-# dragonfly devops
+## Introduction
+This project is a deployment tool for Dragonfly, used to quickly deploy Dragonfly projects.
 
-## 简介
-
-本项目是 dragonfly 的部署工具，用于快速部署 dragonfly 项目。
-
-## 依赖
+## Dependencies
 - helmfile: https://github.com/helmfile/helmfile
 - helm: https://helm.sh/
 - helm-diff: https://github.com/databus23/helm-diff
-- ceph csi: rook
+- csi
 
-## mysql 初始化
-```shell
-kubectl port-forward -n mysql-innodbcluster-d7y service/mysql-innodbcluster-d7y  3306
+## Dragonfly Deployment
 
+### Ensure the configuration in environments/dev/ meets the requirements, then execute the following commands
+* d7y-mysql.yaml.gotmpl: mysql InnoDB configuration 
+* d7y-redis-sentinel. yaml.gotmpl: redis sentinel configuration
+* d7y-system.yaml.gotmpl: dragonfly system configuration
 
-mysql -h127.0.0.1 -udragonfly -p
-CREATE DATABASE manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-## dragonfly 部署
-### 需要具体查看environments/dev/中对应的配置是否符合要求，然后执行以下命令
-
-1. mysql-operator 部署
+1. MySQL Operator Deployment
 ```shell
 # environments/dev/base.yaml.gotmpl
 install:
-  mysql_operator: true 
+  mysql_operator: true
 helmfile -f helmfile.yaml -e dev sync
 ```
-2. mysql-innodbcluster 部署
+
+2. MySQL InnoDB Cluster Deployment
 ```shell
 # environments/dev/base.yaml.gotmpl
 install:
   mysql_innodbcluster_d7y: true
 helmfile -f helmfile.yaml -e dev sync
+
 # mysql-innodbcluster-d7y
-kubectl port-forward -n mysql-innodbcluster-d7y service/mysql-innodbcluster-d7y  3306
+kubectl port-forward -n mysql-innodbcluster-d7y service/mysql-innodbcluster-d7y 3306
 mysql -h127.0.0.1 -udragonfly -p
 CREATE DATABASE manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
-3. redis 部署
+
+3. Redis Sentinel Deployments
 ```shell
 # environments/dev/base.yaml.gotmpl
 install:
@@ -50,10 +45,19 @@ install:
 helmfile -f helmfile.yaml -e dev sync
 ```
 
-4. dragonfly 部署
+4. Dragonfly Deployment
 ```shell
 # environments/dev/base.yaml.gotmpl
 install:
   d7y_system: true
+helmfile -f helmfile.yaml -e dev sync
+```
+
+5. Dragonfly update 
+```shell
+# diff will show the difference between the current state and the desired state 
+helmfile -f helmfile.yaml -e dev diff
+
+# sync will update the current state to the desired state
 helmfile -f helmfile.yaml -e dev sync
 ```

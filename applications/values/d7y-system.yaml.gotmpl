@@ -94,7 +94,7 @@ client:
       tag: 1.37.0 
   dfinit:
     enable: true 
-    restartContainerRuntime: false
+    restartContainerRuntime: true 
     image:
       registry: docker.io
       repository: dragonflyoss/dfinit
@@ -109,9 +109,6 @@ client:
         containerd:
           configPath: /etc/containerd/config.toml
           registries:
-            - hostNamespace: glcr.nju.edu.cn 
-              serverAddr: https://glcr.nju.edu.cn
-              capabilities: ["pull", "resolve"]
             - hostNamespace: docker.io 
               serverAddr: https://index.docker.io
               capabilities: ["pull", "resolve"]

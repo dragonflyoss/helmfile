@@ -4,14 +4,13 @@ bases:
   - "../bases/environments.yaml"
 
 ---
-
 repositories:
 - name: dragonfly
   url: https://dragonflyoss.github.io/helm-charts/
-
 # - name: mysql-operator 
 #   url: https://mysql.github.io/mysql-operator/
 
+releases:
 {{- if .Values | get "install.mysql_operator" false }}
 - name: mysql-operator 
   namespace: {{ .Values.namespace.mysql_operator }}
