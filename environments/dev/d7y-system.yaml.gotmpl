@@ -1,0 +1,15 @@
+d7ySystem:
+  # please set storageClass of mysql
+  storageClass: ""
+  mysql:
+    host: "mysql-innodbcluster-d7y.mysql-innodbcluster-d7y"
+    username: dragonfly
+    # please set the password of mysql
+    password: "password" 
+    database: manager
+  redis:
+    addrs:
+      - "d7y-redis-sentinel.d7y-redis-sentinel.svc.cluster.local:26379"
+    masterName: "mymaster"
+    sentinelPassword: "password"
+    password: "password"

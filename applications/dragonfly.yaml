@@ -1,0 +1,45 @@
+---
+bases:
+  - "../bases/helmDefaults.yaml"
+  - "../bases/environments.yaml"
+
+---
+repositories:
+- name: dragonfly
+  url: https://dragonflyoss.github.io/helm-charts/
+# - name: mysql-operator 
+#   url: https://mysql.github.io/mysql-operator/
+
+releases:
+{{- if .Values | get "install.mysql_operator" false }}
+- name: mysql-operator 
+  namespace: {{ .Values.namespace.mysql_operator }}
+  chart: ./chart/mysql-operator 
+  values:
+    - values/mysql-operator.yaml.gotmpl
+{{- end }}
+
+{{- if .Values | get "install.mysql_innodbcluster_d7y" false }}
+- name: mysql-innodbcluster-d7y
+  namespace: mysql-innodbcluster-d7y
+  chart: ./chart/mysql-innodbcluster 
+  values:
+    - values/mysql-innodbcluster.yaml.gotmpl
+{{- end }}
+
+{{- if (.Values | get "install.d7y_redis_sentinel" false) }}
+- name: "d7y-redis-sentinel"
+  namespace: {{ .Values | get "namespace.d7y_redis_sentinel" "d7y-redis-sentinel" }}
+  chart: ./chart/redis
+  values:
+    - values/d7y-redis-sentinel.yaml.gotmpl
+{{- end }}
+
+{{- if .Values | get "install.d7y_system" false }}
+- name: d7y-system
+  namespace: d7y-system
+  chart: dragonfly/dragonfly
+  version: "1.3.25"
+  values:
+    - values/d7y-system.yaml.gotmpl
+{{- end }}

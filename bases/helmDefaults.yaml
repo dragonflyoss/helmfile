@@ -1,0 +1,12 @@
+---
+helmDefaults:
+  atomic: false
+  cleanupOnFail: false
+  # wait: true
+  timeout: 300
+  # Do not recreate pods during upgrade when not required
+  recreatePods: false
+  skipDeps: true
+  suppressOutputLineRegex:
+    - "helm.sh/chart"
+    - "app.kubernetes.io/version"

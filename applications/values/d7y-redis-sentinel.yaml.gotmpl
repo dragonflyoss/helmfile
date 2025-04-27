@@ -1,0 +1,42 @@
+sentinel:
+  enabled: true
+auth:
+  password: {{ .Values | get "d7yRedisSentinel.auth.password" "password" | quote }}
+master:
+{{- if .Values | get "d7yRedisSentinel.enforceSchedule" false }}
+  nodeAffinityPreset:
+    type: "hard"
+    key: "sre.com/infra"
+    values:
+      - "true"
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+{{- end }}
+  persistence:
+    size: {{ .Values | get "d7yRedisSentinel.master.persistence.size" "8Gi" | quote }}
+    storageClass: {{ .Values | get "d7yRedisSentinel.master.persistence.storageClass" "" | quote }}
+replica:
+{{- if .Values | get "d7yRedisSentinel.enforceSchedule" false }}
+  nodeAffinityPreset:
+    type: "hard"
+    key: "platform.glm.ai/infra"
+    values:
+      - "true"
+  tolerations:
+    - key: "platform.glm.ai/infra"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+{{- end }}
+  replicaCount: 3
+  persistence:
+    size: {{ .Values | get "d7yRedisSentinel.replica.persistence.size" "8Gi" | quote }}
+    storageClass: {{ .Values | get "d7yRedisSentinel.replica.persistence.storageClass" "" | quote }}
+networkPolicy:
+  enabled: false
+metrics:
+  enabled: true
